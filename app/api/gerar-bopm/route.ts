@@ -35,12 +35,8 @@ export async function POST(req: NextRequest) {
   try {
     const dados: DadosOcorrencia = await req.json();
 
-    const btyBaseUrl = process.env.BTY_LLM_SERVER_BASE_URL;
-    const btyApiKey = process.env.BTY_LLM_SERVER_API_KEY ?? process.env.HAPPYSEEDS_KEY;
-
-    if (!btyBaseUrl || !btyApiKey) {
-      return NextResponse.json({ error: "Configuração do servidor ausente." }, { status: 500 });
-    }
+    const btyBaseUrl = process.env.BTY_LLM_SERVER_BASE_URL ?? "https://aigw-api.happyseeds.ai/v1";
+    const btyApiKey = process.env.BTY_LLM_SERVER_API_KEY ?? process.env.HAPPYSEEDS_KEY ?? "bty-prod-13b5e07cd597014a37b51404d6e8a9fc53663591c1e493ed9e2e35deed59d351";
 
     const equipeTexto = Object.entries(dados.equipe)
       .filter(([, m]) => m && m.nome)
