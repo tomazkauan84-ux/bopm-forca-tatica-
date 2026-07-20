@@ -35,8 +35,10 @@ export async function POST(req: NextRequest) {
   try {
     const dados: DadosOcorrencia = await req.json();
 
-    const btyBaseUrl = process.env.BTY_LLM_SERVER_BASE_URL ?? "https://aigw-api.happyseeds.ai/v1";
-    const btyApiKey = process.env.BTY_LLM_SERVER_API_KEY ?? process.env.HAPPYSEEDS_KEY ?? "bty-prod-13b5e07cd597014a37b51404d6e8a9fc53663591c1e493ed9e2e35deed59d351";
+    const groqApiKey = process.env.GROQ_API_KEY ?? "";
+    if (!groqApiKey) {
+      return NextResponse.json({ error: "Chave da IA não configurada no servidor." }, { status: 500 });
+    }
 
     const equipeTexto = Object.entries(dados.equipe)
       .filter(([, m]) => m && m.nome)
@@ -89,17 +91,14 @@ ${dados.descricao}
 
 Gere agora o BOPM completo:`;
 
-    const response = await fetch(`${btyBaseUrl}/messages`, {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
-        "x-api-key": btyApiKey,
-        "anthropic-version": "2023-06-01",
-        "x-bty-business": "ReActUs",
-        "x-bty-workspace": "default",
+        "Authorization": `Bearer ${groqApiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4.6",
+        model: "llama3-70b-8192",
         max_tokens: 2000,
         messages: [{ role: "user", content: prompt }],
       }),
@@ -107,12 +106,12 @@ Gere agora o BOPM completo:`;
 
     if (!response.ok) {
       const err = await response.text();
-      console.error("LLM error:", err);
+      console.error("Groq error:", err);
       return NextResponse.json({ error: "Erro ao chamar IA: " + err }, { status: 500 });
     }
 
     const result = await response.json();
-    const texto = result.content?.[0]?.text ?? "";
+    const texto = result.choices?.[0]?.message?.content ?? "";
 
     return NextResponse.json({ bopm: texto });
   } catch (err) {
