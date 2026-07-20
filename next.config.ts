@@ -13,6 +13,9 @@ const nextConfig: NextConfig = {
   env: {
     PROJECT_ID: process.env.HAPPYSEEDS_PROJECT_ID ?? '',
     REACTUS_BASE_URL: process.env.REACTUS_BASE_URL ?? '',
+    BTY_LLM_SERVER_BASE_URL: process.env.BTY_LLM_SERVER_BASE_URL ?? '',
+    BTY_LLM_SERVER_API_KEY: process.env.BTY_LLM_SERVER_API_KEY ?? '',
+    HAPPYSEEDS_KEY: process.env.HAPPYSEEDS_KEY ?? '',
   },
   serverExternalPackages: [],
   allowedDevOrigins: [
